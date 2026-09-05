@@ -1,0 +1,1354 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Допуск — прогноз готовности к сессии</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy-deep: #0B1F3A;
+    --navy: #12294D;
+    --blue: #1B4B91;
+    --blue-mid: #4C7FD1;
+    --blue-tint: #C3D9F7;
+    --accent: #F5B942;
+    --paper: #F3F6FC;
+    --paper-line: #D6E1F2;
+    --white: #FFFFFF;
+    --ink: #12294D;
+    --ink-soft: #4C5F7D;
+    --danger: #C7433F;
+    --ok: #2E7D5B;
+    --green-light: #E8F5E9;
+    --orange-light: #FFF3E0;
+    --red-light: #FFEBEE;
+  }
+  * { box-sizing: border-box; }
+  html { font-size: 18px; scroll-behavior: smooth; }
+  html, body { margin: 0; padding: 0; height: 100%; width: 100%; background: var(--paper); color: var(--ink); font-family: 'Inter', sans-serif; overflow-x: hidden; }
+  h1, h2, h3 { font-family: 'Fraunces', serif; font-weight: 500; line-height: 1.15; margin: 0; }
+  a { color: inherit; text-decoration: none; }
+  button { font-family: 'Inter', sans-serif; cursor: pointer; border: none; }
+  .page { display: none; min-height: 100vh; width: 100%; }
+  .page.active { display: block; }
+
+  /* PAGE 1 */
+  #page-hero {
+    background: radial-gradient(1200px 680px at 82% -8%, rgba(76,127,209,0.38), transparent 60%),
+      radial-gradient(760px 480px at 90% 72%, rgba(245,185,66,0.20), transparent 65%),
+      linear-gradient(180deg, var(--navy-deep) 0%, var(--navy) 100%);
+    color: var(--white);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 72px 24px;
+    min-height: 100vh;
+  }
+  .hero-shell { max-width: 1160px; width: 100%; display: grid; grid-template-columns: 1fr; gap: 56px; align-items: center; }
+  @media (min-width: 900px) { .hero-shell { grid-template-columns: 1.05fr 0.95fr; } }
+  .hero-text { max-width: 600px; }
+  .brand-badge { position: relative; display: inline-flex; align-items: center; justify-content: center; padding: 4px 8px; margin-bottom: 34px; opacity: 0; animation: rise 0.7s ease-out 0.05s forwards; }
+  .laurel { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 190px; height: auto; z-index: 0; pointer-events: none; }
+  .brand { position: relative; z-index: 1; font-family: 'Fraunces', serif; font-size: 1.2rem; letter-spacing: 0.02em; color: var(--blue-tint); }
+  .hero-greeting { font-size: clamp(2.3rem, 5vw, 3.6rem); color: var(--white); opacity: 0; animation: rise 0.7s ease-out 0.15s forwards; }
+  .hero-sub { margin-top: 22px; font-size: 1.18rem; line-height: 1.6; color: #D3E0F5; max-width: 500px; opacity: 0; animation: rise 0.7s ease-out 0.3s forwards; }
+  @keyframes rise { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
+  .choice-section { margin-top: 40px; display: flex; flex-direction: column; gap: 24px; opacity: 0; animation: rise 0.7s ease-out 0.6s forwards; }
+  .choice-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 600px) { .choice-grid { grid-template-columns: 1fr; } }
+  .choice-card { 
+    background: rgba(255,255,255,0.07); 
+    backdrop-filter: blur(4px); 
+    border: 1.5px solid rgba(255,255,255,0.15); 
+    border-radius: 14px; 
+    padding: 28px 24px 24px; 
+    transition: all 0.25s ease; 
+    text-align: center; 
+    display: flex;
+    flex-direction: column;
+    min-height: 280px;
+  }
+  .choice-card:hover { background: rgba(255,255,255,0.14); transform: translateY(-4px); border-color: rgba(255,255,255,0.35); }
+  .choice-icon { font-size: 2.6rem; margin-bottom: 12px; display: block; }
+  .choice-card h3 { font-size: 1.2rem; color: var(--white); margin-bottom: 8px; }
+  .choice-card p { font-size: 0.95rem; color: #C3D4EE; margin-bottom: 18px; line-height: 1.5; flex: 1; }
+  .choice-btn { 
+    padding: 10px 28px; 
+    border-radius: 8px; 
+    font-size: 1rem; 
+    font-weight: 600; 
+    transition: all 0.2s ease; 
+    border: none; 
+    display: inline-block; 
+    cursor: pointer; 
+    margin-top: auto;
+    align-self: center;
+  }
+  .choice-btn:hover { transform: scale(1.02); }
+  .choice-btn.teacher-btn { background: var(--blue-mid); color: white; }
+  .choice-btn.teacher-btn:hover { background: #6B96E0; }
+  .choice-btn.student-btn { background: var(--accent); color: var(--navy-deep); }
+  .choice-btn.student-btn:hover { background: #FFC968; }
+  .hero-visual { display: flex; align-items: center; justify-content: center; opacity: 0; animation: rise 0.9s ease-out 0.3s forwards; }
+  .hero-visual svg { width: 100%; max-width: 400px; height: auto; }
+
+  /* PAGE 2 */
+  #page-teacher {
+    padding: 40px 24px 80px;
+    min-height: 100vh;
+    background: var(--paper);
+    scroll-margin-top: 20px;
+  }
+  .teacher-shell { max-width: 1400px; margin: 0 auto; }
+  .page-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; flex-wrap: wrap; gap: 16px; }
+  .back-link { background: none; color: var(--blue); font-size: 1.02rem; font-weight: 500; padding: 0; display: flex; align-items: center; gap: 6px; border: none; cursor: pointer; }
+  .back-link:hover { color: var(--blue-mid); }
+  .page-title { font-size: 2rem; color: var(--navy-deep); }
+  .page-desc { color: var(--ink-soft); font-size: 1.05rem; line-height: 1.6; margin-bottom: 24px; max-width: 700px; }
+
+  .toolbar {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 16px;
+    align-items: center;
+  }
+  .toolbar-group {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    background: #F3F6FC;
+    padding: 4px 12px 4px 16px;
+    border-radius: 8px;
+    border: 1px solid #D6E1F2;
+    flex-wrap: wrap;
+  }
+  .toolbar-group label { font-size: 13px; color: #4C5F7D; font-weight: 500; }
+  .toolbar-group input { width: 60px; padding: 6px 8px; border: 1px solid #D6E1F2; border-radius: 4px; font-size: 14px; text-align: center; }
+  .toolbar-group input:focus { border-color: #4C7FD1; outline: none; }
+
+  .btn { padding: 8px 18px; border: none; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+  .btn-primary { background: #1B4B91; color: white; }
+  .btn-primary:hover { background: #4C7FD1; }
+  .btn-success { background: #2E7D5B; color: white; }
+  .btn-success:hover { background: #3A9B72; }
+  .btn-danger { background: #C7433F; color: white; }
+  .btn-danger:hover { background: #E05A56; }
+  .btn-warning { background: #F5B942; color: #0B1F3A; }
+  .btn-warning:hover { background: #FFC968; }
+  .btn-info { background: #4C7FD1; color: white; }
+  .btn-info:hover { background: #6B96E0; }
+  .btn-purple { background: #7B4C9A; color: white; }
+  .btn-purple:hover { background: #9B6DB8; }
+  .btn-outline-danger { background: transparent; color: #C7433F; border: 1.5px solid #C7433F; }
+  .btn-outline-danger:hover { background: #C7433F; color: white; }
+  .btn-outline-success { background: transparent; color: #2E7D5B; border: 1.5px solid #2E7D5B; }
+  .btn-outline-success:hover { background: #2E7D5B; color: white; }
+
+  .table-wrap { background: var(--white); border-radius: 12px; border: 1px solid var(--paper-line); overflow: auto; margin-bottom: 24px; max-height: 600px; overflow-y: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 1400px; }
+  th { background: var(--navy); color: var(--white); padding: 8px 6px; text-align: center; font-weight: 600; position: sticky; top: 0; z-index: 10; white-space: nowrap; border-right: 1px solid rgba(255,255,255,0.1); }
+  th:last-child { border-right: none; }
+  td { padding: 4px 6px; border-bottom: 1px solid var(--paper-line); border-right: 1px solid #E8EDF5; text-align: center; }
+  td:last-child { border-right: none; }
+  tr:nth-child(even) td { background: #F8FAFC; }
+  tr:hover td { background: #E3EEFA; }
+  .row-num { background: #E8EDF5 !important; font-weight: 600; color: #0B1F3A; text-align: center; min-width: 35px; }
+
+  .table-input {
+    width: 100%;
+    padding: 4px 6px;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    font-size: 13px;
+    font-family: 'Inter', sans-serif;
+    background: transparent;
+    transition: all 0.15s;
+    text-align: center;
+    min-width: 40px;
+  }
+  .table-input:hover { background: white; border-color: #D6E1F2; }
+  .table-input:focus { background: white; border-color: #4C7FD1; outline: none; box-shadow: 0 0 0 3px rgba(76,127,209,0.15); }
+  .table-input.text { min-width: 70px; text-align: left; }
+  .table-input.paste-highlight { background: #C8E6C9 !important; border-color: #4CAF50 !important; transition: background 0.5s ease; }
+
+  .status-bar { margin-top: 16px; padding: 12px 16px; background: #E8F5E9; border-radius: 6px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .status-bar .info { color: #2E7D5B; font-size: 14px; }
+  .status-bar .info strong { color: #0B1F3A; }
+
+  .btn-calc-teacher { background: var(--blue); color: var(--white); padding: 14px 32px; border-radius: 8px; font-size: 1.05rem; font-weight: 600; transition: background 0.15s ease; border: none; margin-top: 16px; }
+  .btn-calc-teacher:hover { background: var(--blue-mid); }
+
+  /* TEACHER RESULT */
+  #teacher-result { margin-top: 30px; display: none; }
+  #teacher-result.active { display: block; }
+  .result-teacher-card { background: var(--white); border-radius: 14px; border: 1px solid var(--paper-line); padding: 28px 30px 30px; }
+
+  /* СТАТИСТИКА ВНУТРИ РЕЗУЛЬТАТОВ */
+  .result-stats-grid { 
+    display: grid; 
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); 
+    gap: 16px; 
+    margin-bottom: 24px; 
+  }
+  .result-stat-card { 
+    background: var(--paper); 
+    border-radius: 10px; 
+    padding: 16px 18px 14px; 
+    border: 1px solid var(--paper-line); 
+    text-align: center; 
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .result-stat-card:hover { 
+    transform: translateY(-2px); 
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08); 
+  }
+  .result-stat-card .num { 
+    font-family: 'Fraunces', serif; 
+    font-size: 2rem; 
+    font-weight: 600; 
+    color: var(--navy-deep); 
+    display: block; 
+    margin-bottom: 2px;
+  }
+  .result-stat-card .label { 
+    font-size: 0.85rem; 
+    color: var(--ink-soft); 
+    display: block;
+    margin-bottom: 8px;
+  }
+  .result-stat-card .stat-bar-wrap {
+    width: 100%;
+    height: 4px;
+    background: var(--paper-line);
+    border-radius: 999px;
+    overflow: hidden;
+    margin-top: 4px;
+  }
+  .result-stat-card .stat-bar-wrap .stat-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    transition: width 0.6s ease;
+    width: 0%;
+  }
+  .result-stat-card .stat-bar-wrap .stat-bar-fill.high { background: var(--ok); }
+  .result-stat-card .stat-bar-wrap .stat-bar-fill.medium { background: #E65100; }
+  .result-stat-card .stat-bar-wrap .stat-bar-fill.low { background: var(--danger); }
+  .result-stat-card .click-hint {
+    font-size: 0.65rem;
+    color: var(--ink-soft);
+    opacity: 0.5;
+    margin-top: 4px;
+    display: block;
+  }
+  .result-stat-card.high-card { border-left: 4px solid var(--ok); }
+  .result-stat-card.medium-card { border-left: 4px solid #E65100; }
+  .result-stat-card.low-card { border-left: 4px solid var(--danger); }
+
+  .result-teacher-header { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 20px; }
+  .result-teacher-header h3 { font-family: 'Fraunces', serif; font-size: 1.4rem; color: var(--navy-deep); }
+  .result-teacher-header .badge { padding: 6px 18px; border-radius: 20px; font-size: 0.85rem; font-weight: 600; }
+  .badge.high { background: var(--green-light); color: var(--ok); }
+  .badge.medium { background: var(--orange-light); color: #E65100; }
+  .badge.low { background: var(--red-light); color: var(--danger); }
+
+  .risk-student { display: flex; align-items: center; gap: 14px; padding: 10px 14px; border-radius: 8px; margin-bottom: 8px; background: var(--paper); }
+  .risk-student .name { font-weight: 600; flex: 1; }
+  .risk-student .class { color: var(--ink-soft); font-size: 0.8rem; }
+  .risk-student .percent { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; }
+  .risk-student .percent.high { color: var(--ok); }
+  .risk-student .percent.medium { color: #E65100; }
+  .risk-student .percent.low { color: var(--danger); }
+  .risk-bar { width: 80px; height: 6px; background: var(--paper-line); border-radius: 999px; overflow: hidden; flex-shrink: 0; }
+  .risk-bar .fill { height: 100%; border-radius: 999px; transition: width 0.6s ease; }
+  .risk-bar .fill.high { background: var(--ok); }
+  .risk-bar .fill.medium { background: #E65100; }
+  .risk-bar .fill.low { background: var(--danger); }
+
+  /* ALL STUDENTS MODAL */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.active { display: flex; }
+  .modal-content {
+    background: var(--white);
+    border-radius: 16px;
+    max-width: 900px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+  }
+  .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--paper-line);
+    flex-wrap: wrap;
+    gap: 12px;
+  }
+  .modal-header h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.4rem;
+    color: var(--navy-deep);
+  }
+  .modal-header .close-btn {
+    background: none;
+    border: none;
+    font-size: 28px;
+    color: var(--ink-soft);
+    cursor: pointer;
+    padding: 0 8px;
+    line-height: 1;
+  }
+  .modal-header .close-btn:hover { color: var(--danger); }
+  .modal-filter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 24px;
+    background: var(--paper);
+    border-bottom: 1px solid var(--paper-line);
+    flex-wrap: wrap;
+  }
+  .modal-filter label {
+    font-size: 14px;
+    color: var(--ink-soft);
+    font-weight: 500;
+  }
+  .modal-filter select {
+    padding: 6px 12px;
+    border: 1px solid var(--paper-line);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    background: var(--white);
+    cursor: pointer;
+  }
+  .modal-filter select:focus { outline: none; border-color: var(--blue-mid); }
+  .modal-body {
+    padding: 16px 24px 24px;
+    overflow-y: auto;
+    flex: 1;
+  }
+  .modal-student {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    border-radius: 8px;
+    margin-bottom: 8px;
+    background: var(--paper);
+    transition: background 0.15s;
+  }
+  .modal-student:hover { background: #E3EEFA; }
+  .modal-student .name { font-weight: 600; flex: 1; }
+  .modal-student .class { color: var(--ink-soft); font-size: 0.8rem; }
+  .modal-student .percent { font-family: 'Fraunces', serif; font-size: 1.2rem; font-weight: 600; }
+  .modal-student .percent.high { color: var(--ok); }
+  .modal-student .percent.medium { color: #E65100; }
+  .modal-student .percent.low { color: var(--danger); }
+  .modal-student .risk-bar { width: 80px; height: 6px; background: var(--paper-line); border-radius: 999px; overflow: hidden; flex-shrink: 0; }
+  .modal-student .risk-bar .fill { height: 100%; border-radius: 999px; transition: width 0.6s ease; }
+  .modal-student .risk-bar .fill.high { background: var(--ok); }
+  .modal-student .risk-bar .fill.medium { background: #E65100; }
+  .modal-student .risk-bar .fill.low { background: var(--danger); }
+  .modal-empty {
+    text-align: center;
+    color: var(--ink-soft);
+    padding: 40px 0;
+    font-size: 1.1rem;
+  }
+  .modal-badge {
+    display: inline-block;
+    padding: 4px 14px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+  }
+  .modal-badge.high { background: var(--green-light); color: var(--ok); }
+  .modal-badge.medium { background: var(--orange-light); color: #E65100; }
+  .modal-badge.low { background: var(--red-light); color: var(--danger); }
+
+  .toast { position: fixed; bottom: 30px; right: 30px; background: #0B1F3A; color: white; padding: 14px 24px; border-radius: 8px; font-size: 14px; box-shadow: 0 4px 20px rgba(0,0,0,0.25); opacity: 0; transform: translateY(20px); transition: all 0.3s; pointer-events: none; z-index: 999; }
+  .toast.show { opacity: 1; transform: translateY(0); }
+
+  /* PAGE 3 */
+  #page-student {
+    padding: 40px 24px 80px;
+    min-height: 100vh;
+    background: var(--paper);
+    scroll-margin-top: 20px;
+  }
+  .student-shell { max-width: 620px; margin: 0 auto; }
+  .form-head { display: flex; align-items: flex-start; gap: 20px; margin-bottom: 10px; }
+  .form-head svg { width: 60px; height: 60px; flex-shrink: 0; margin-top: 4px; }
+  .form-title { font-size: 2rem; color: var(--navy-deep); margin-bottom: 8px; }
+  .form-lede { color: var(--ink-soft); font-size: 1.05rem; line-height: 1.6; margin-bottom: 16px; }
+  .form-note { background: var(--white); border: 1px solid var(--paper-line); border-left: 4px solid var(--accent); border-radius: 8px; padding: 16px 20px; font-size: 0.92rem; color: var(--ink-soft); line-height: 1.6; margin-bottom: 30px; }
+  .form-note strong { color: var(--navy); font-weight: 600; }
+  .field { margin-bottom: 24px; padding-bottom: 24px; border-bottom: 1px solid var(--paper-line); }
+  .field:last-of-type { border-bottom: none; }
+  .field label { display: block; font-size: 1.05rem; font-weight: 600; color: var(--navy); margin-bottom: 8px; }
+  .field .hint { display: block; font-weight: 400; font-size: 0.85rem; color: var(--ink-soft); margin-top: 3px; }
+  .field input[type="number"], .field select { width: 100%; padding: 12px 14px; font-size: 1rem; font-family: 'Inter', sans-serif; color: var(--ink); background: var(--white); border: 1.5px solid var(--paper-line); border-radius: 6px; }
+  .field input[type="number"]:focus, .field select:focus { border-color: var(--blue-mid); outline: none; }
+  .field-inline { display: flex; align-items: center; gap: 10px; }
+  .field-inline input[type="number"] { max-width: 120px; }
+  .field-inline .unit { color: var(--ink-soft); font-size: 0.92rem; }
+  .btn-calc { width: 100%; background: var(--blue); color: var(--white); padding: 16px; border-radius: 8px; font-size: 1.08rem; font-weight: 600; margin-top: 6px; transition: background 0.15s ease; border: none; }
+  .btn-calc:hover { background: var(--blue-mid); }
+  #student-result { margin-top: 30px; display: none; }
+  #student-result.active { display: block; }
+  .result-student-card { background: var(--white); border-radius: 14px; border: 1px solid var(--paper-line); padding: 28px 30px 30px; }
+  .result-student-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
+  .result-student-header h3 { font-family: 'Fraunces', serif; font-size: 1.3rem; color: var(--navy-deep); }
+  .result-student-header .status { font-size: 0.9rem; font-weight: 600; padding: 4px 16px; border-radius: 20px; }
+  .status.high { background: var(--green-light); color: var(--ok); }
+  .status.medium { background: var(--orange-light); color: #E65100; }
+  .status.low { background: var(--red-light); color: var(--danger); }
+  .result-big-number { text-align: center; padding: 16px 0 12px; }
+  .result-big-number .num { font-family: 'Fraunces', serif; font-size: 4rem; font-weight: 700; color: var(--navy-deep); }
+  .result-big-number .num::after { content: "%"; font-size: 2rem; color: var(--ink-soft); }
+  .result-big-number .sub { font-size: 0.95rem; color: var(--ink-soft); }
+  .result-student-stats { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; margin: 18px 0 22px; }
+  .result-student-stats .stat-item { text-align: center; padding: 12px 8px; background: var(--paper); border-radius: 8px; }
+  .result-student-stats .stat-item .val { font-family: 'Fraunces', serif; font-size: 1.5rem; font-weight: 600; color: var(--navy-deep); display: block; }
+  .result-student-stats .stat-item .lbl { font-size: 0.75rem; color: var(--ink-soft); }
+  .result-tips { background: var(--paper); border-radius: 8px; padding: 16px 20px; }
+  .result-tips h4 { font-size: 0.95rem; color: var(--navy-deep); margin-bottom: 10px; }
+  .result-tips ul { margin: 0; padding-left: 20px; color: var(--ink-soft); font-size: 0.9rem; line-height: 1.8; }
+
+  @media (max-width: 520px) {
+    #page-hero { padding: 40px 16px; }
+    #page-teacher { padding: 30px 16px 60px; }
+    #page-student { padding: 30px 16px 60px; }
+    .choice-grid { grid-template-columns: 1fr; }
+    .choice-card { min-height: auto; }
+    .form-head { flex-direction: column; }
+    .result-student-stats { grid-template-columns: 1fr; }
+    .result-big-number .num { font-size: 3rem; }
+    .result-stats-grid { grid-template-columns: 1fr 1fr; }
+    table { font-size: 11px; min-width: 1100px; }
+    th, td { padding: 3px 4px; }
+    .table-input { font-size: 11px; min-width: 30px; padding: 2px 4px; }
+    .toolbar .btn { font-size: 12px; padding: 6px 12px; }
+    .status-bar { flex-direction: column; align-items: stretch; text-align: center; }
+    .toolbar-group { width: 100%; justify-content: center; }
+    .modal-content { max-width: 100%; margin: 10px; }
+    .modal-header h2 { font-size: 1.1rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 -->
+<section id="page-hero" class="page active">
+  <div class="hero-shell">
+    <div class="hero-text">
+      <div class="brand-badge">
+        <svg class="laurel" viewBox="0 0 240 100" fill="none" aria-hidden="true">
+          <g stroke="var(--blue-tint)" stroke-width="2" opacity="0.6">
+            <path d="M22 92 Q10 60 26 30 Q37 8 58 3"/>
+            <ellipse cx="24" cy="80" rx="7" ry="3" transform="rotate(-30 24 80)" fill="var(--blue-tint)"/>
+            <ellipse cx="19" cy="64" rx="7" ry="3" transform="rotate(-12 19 64)" fill="var(--blue-tint)"/>
+            <ellipse cx="21" cy="48" rx="7" ry="3" transform="rotate(4 21 48)" fill="var(--blue-tint)"/>
+            <ellipse cx="30" cy="32" rx="7" ry="3" transform="rotate(24 30 32)" fill="var(--blue-tint)"/>
+            <ellipse cx="45" cy="17" rx="7" ry="3" transform="rotate(48 45 17)" fill="var(--blue-tint)"/>
+          </g>
+          <g stroke="var(--blue-tint)" stroke-width="2" opacity="0.6" transform="translate(240,0) scale(-1,1)">
+            <path d="M22 92 Q10 60 26 30 Q37 8 58 3"/>
+            <ellipse cx="24" cy="80" rx="7" ry="3" transform="rotate(-30 24 80)" fill="var(--blue-tint)"/>
+            <ellipse cx="19" cy="64" rx="7" ry="3" transform="rotate(-12 19 64)" fill="var(--blue-tint)"/>
+            <ellipse cx="21" cy="48" rx="7" ry="3" transform="rotate(4 21 48)" fill="var(--blue-tint)"/>
+            <ellipse cx="30" cy="32" rx="7" ry="3" transform="rotate(24 30 32)" fill="var(--blue-tint)"/>
+            <ellipse cx="45" cy="17" rx="7" ry="3" transform="rotate(48 45 17)" fill="var(--blue-tint)"/>
+          </g>
+        </svg>
+        <span class="brand">Допуск</span>
+      </div>
+      <h1 class="hero-greeting">StudentCare — система раннего выявления учебных рисков</h1>
+      <p class="hero-sub">Помогает преподавателям вовремя заметить студентов, которым нужна поддержка, а студентам — увидеть свои шансы на успешную сдачу сессии.</p>
+      <div class="choice-section">
+        <p style="font-size:1.1rem; color:#D3E0F5; margin-bottom:4px;">Кто вы?</p>
+        <div class="choice-grid">
+          <div class="choice-card">
+            <span class="choice-icon">👨‍🏫</span>
+            <h3>Преподаватель</h3>
+            <p>Анализировать успеваемость студентов и выявлять риски</p>
+            <button class="choice-btn teacher-btn" onclick="goToTeacher()">Продолжить</button>
+          </div>
+          <div class="choice-card">
+            <span class="choice-icon">🎓</span>
+            <h3>Студент</h3>
+            <p>Посмотреть свой прогресс и рекомендации</p>
+            <button class="choice-btn student-btn" onclick="goToStudent()">Продолжить</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual" aria-hidden="true">
+      <svg viewBox="0 0 400 300" fill="none">
+        <path d="M40 96 L200 24 L360 96" stroke="var(--blue-tint)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+        <line x1="28" y1="96" x2="372" y2="96" stroke="var(--blue-tint)" stroke-width="4" stroke-linecap="round"/>
+        <circle cx="200" cy="16" r="6" fill="var(--accent)"/>
+        <line x1="70" y1="102" x2="70" y2="212" stroke="var(--blue-mid)" stroke-width="8" stroke-linecap="round"/>
+        <line x1="130" y1="102" x2="130" y2="212" stroke="var(--blue-mid)" stroke-width="8" stroke-linecap="round"/>
+        <line x1="190" y1="102" x2="190" y2="212" stroke="var(--blue-mid)" stroke-width="8" stroke-linecap="round"/>
+        <line x1="250" y1="102" x2="250" y2="212" stroke="var(--blue-mid)" stroke-width="8" stroke-linecap="round"/>
+        <line x1="310" y1="102" x2="310" y2="212" stroke="var(--blue-mid)" stroke-width="8" stroke-linecap="round"/>
+        <line x1="24" y1="222" x2="376" y2="222" stroke="var(--blue-tint)" stroke-width="5" stroke-linecap="round"/>
+        <line x1="12" y1="240" x2="388" y2="240" stroke="var(--blue-tint)" stroke-width="5" stroke-linecap="round" opacity="0.7"/>
+        <line x1="0" y1="258" x2="400" y2="258" stroke="var(--blue-tint)" stroke-width="5" stroke-linecap="round" opacity="0.45"/>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- PAGE 2: TEACHER -->
+<section id="page-teacher" class="page">
+  <div class="teacher-shell">
+    <div class="page-header">
+      <button class="back-link" onclick="goToHero()">← Назад</button>
+      <span style="font-weight:600; color:var(--ink-soft);">👨‍🏫 Режим преподавателя</span>
+    </div>
+    <h2 class="page-title">📋 Мониторинг успеваемости</h2>
+    <p class="page-desc">Заполните данные по студентам или вставьте таблицу из Excel (Ctrl+V). Нажмите "Проверить шансы" для анализа.</p>
+
+    <div class="toolbar">
+      <button class="btn btn-success" onclick="copyTable()">📋 Скопировать таблицу</button>
+
+      <div class="toolbar-group">
+        <label>➕ Добавить</label>
+        <input type="number" id="addCount" value="5" min="1" max="100">
+        <label>строк</label>
+        <button class="btn btn-info" onclick="addRows()">Добавить</button>
+        <button class="btn btn-outline-success" onclick="addRow()" style="font-size:12px;">+1</button>
+      </div>
+
+      <div class="toolbar-group">
+        <label>➖ Удалить</label>
+        <input type="number" id="deleteCount" value="1" min="1" max="100">
+        <label>строк</label>
+        <button class="btn btn-danger" onclick="deleteRows()">Удалить</button>
+        <button class="btn btn-outline-danger" onclick="deleteRow()" style="font-size:12px;">-1</button>
+      </div>
+
+      <button class="btn btn-warning" onclick="clearTable()">🗑️ Очистить все</button>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>school</th>
+            <th>sex</th>
+            <th>age</th>
+            <th>address</th>
+            <th>famsize</th>
+            <th>Pstatus</th>
+            <th>Medu</th>
+            <th>Fedu</th>
+            <th>Mjob</th>
+            <th>Fjob</th>
+            <th>reason</th>
+            <th>guardian</th>
+            <th>traveltime</th>
+            <th>studytime</th>
+            <th>failures</th>
+            <th>schoolsup</th>
+            <th>famsup</th>
+            <th>paid</th>
+            <th>activities</th>
+            <th>nursery</th>
+            <th>higher</th>
+            <th>internet</th>
+            <th>romantic</th>
+            <th>famrel</th>
+            <th>freetime</th>
+            <th>goout</th>
+            <th>Dalc</th>
+            <th>Walc</th>
+            <th>health</th>
+            <th>absences</th>
+            <th>G1</th>
+            <th>G2</th>
+            <th>G3</th>
+          </tr>
+        </thead>
+        <tbody id="tableBody"></tbody>
+      </table>
+    </div>
+
+    <div class="status-bar">
+      <span class="info">📊 <strong id="rowCount">0</strong> строк в таблице</span>
+      <span class="info">💡 <strong>Совет:</strong> скопируйте таблицу и вставьте в Excel (Ctrl+V)</span>
+      <span class="info" id="lastAction">Готово к работе</span>
+    </div>
+
+    <button class="btn-calc-teacher" onclick="calculateTeacherRisk()">🔍 Проверить шансы</button>
+
+    <div id="teacher-result">
+      <div class="result-teacher-card">
+        <div class="result-teacher-header">
+          <h3>🎯 Студенты с наименьшими шансами на сдачу</h3>
+          <span class="badge" id="result-badge">Низкий шанс</span>
+        </div>
+
+        <!-- СТАТИСТИКА ВНУТРИ РЕЗУЛЬТАТОВ -->
+        <div class="result-stats-grid" id="result-stats-grid">
+          <div class="result-stat-card" id="stat-total-card" onclick="openAllStudentsModal('all')">
+            <span class="num" id="stat-total">0</span>
+            <span class="label">Всего студентов</span>
+            <div class="stat-bar-wrap"><div class="stat-bar-fill" style="width:100%; background:var(--blue-mid);"></div></div>
+            <span class="click-hint">Нажмите для просмотра</span>
+          </div>
+          <div class="result-stat-card high-card" id="stat-high-card" onclick="openAllStudentsModal('high')">
+            <span class="num" id="stat-high">0</span>
+            <span class="label">Высокий шанс (≥70%)</span>
+            <div class="stat-bar-wrap"><div class="stat-bar-fill high" id="stat-high-bar" style="width:0%;"></div></div>
+            <span class="click-hint">Нажмите для просмотра</span>
+          </div>
+          <div class="result-stat-card medium-card" id="stat-medium-card" onclick="openAllStudentsModal('medium')">
+            <span class="num" id="stat-medium">0</span>
+            <span class="label">Средний шанс (40-69%)</span>
+            <div class="stat-bar-wrap"><div class="stat-bar-fill medium" id="stat-medium-bar" style="width:0%;"></div></div>
+            <span class="click-hint">Нажмите для просмотра</span>
+          </div>
+          <div class="result-stat-card low-card" id="stat-low-card" onclick="openAllStudentsModal('low')">
+            <span class="num" id="stat-low">0</span>
+            <span class="label">Низкий шанс (&lt;40%)</span>
+            <div class="stat-bar-wrap"><div class="stat-bar-fill low" id="stat-low-bar" style="width:0%;"></div></div>
+            <span class="click-hint">Нажмите для просмотра</span>
+          </div>
+        </div>
+
+        <div id="teacher-risk-list"></div>
+        <div style="margin-top:16px; text-align:center;">
+          <button class="btn-calc-teacher" style="background:var(--accent); color:var(--navy-deep); padding:10px 28px; font-size:0.95rem;" onclick="openAllStudentsModal('all')">Посмотреть всех →</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ALL STUDENTS MODAL -->
+<div class="modal-overlay" id="allStudentsModal">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h2 id="modalTitle">📋 Все студенты</h2>
+      <button class="close-btn" onclick="closeAllStudentsModal()">&times;</button>
+    </div>
+    <div class="modal-filter">
+      <label for="sortFilter">Сортировка:</label>
+      <select id="sortFilter" onchange="renderAllStudents()">
+        <option value="asc">По возрастанию шанса ↑</option>
+        <option value="desc">По убыванию шанса ↓</option>
+      </select>
+      <span id="modalFilterBadge" style="margin-left:auto;"></span>
+    </div>
+    <div class="modal-body" id="modalBody">
+      <!-- Список студентов рендерится через JS -->
+    </div>
+  </div>
+</div>
+
+<!-- PAGE 3: STUDENT -->
+<section id="page-student" class="page">
+  <div class="student-shell">
+    <div class="page-header" style="margin-bottom:20px;">
+      <button class="back-link" onclick="goToHero()">← Назад</button>
+      <span style="font-weight:600; color:var(--ink-soft);">🎓 Режим студента</span>
+    </div>
+    <div class="form-head">
+      <svg viewBox="0 0 200 160" fill="none">
+        <polygon points="100,26 178,58 100,90 22,58" fill="var(--blue-mid)"/>
+        <circle cx="100" cy="58" r="6" fill="var(--navy-deep)"/>
+        <line x1="100" y1="58" x2="128" y2="108" stroke="var(--accent)" stroke-width="3" stroke-linecap="round"/>
+        <circle cx="128" cy="114" r="6" fill="var(--accent)"/>
+        <ellipse cx="100" cy="98" rx="52" ry="14" fill="var(--blue-tint)" opacity="0.6"/>
+      </svg>
+      <div>
+        <h2 class="form-title">Привет! 👋</h2>
+        <p class="form-lede">Узнай свою вероятность успешной сдачи сессии. Ответь на несколько вопросов о своём семестре.</p>
+      </div>
+    </div>
+    <div class="form-note"><strong>Что мы учитываем:</strong> посещаемость, баллы за контрольные (G1, G2), часы самостоятельной подготовки и количество незачётов.</div>
+
+    <form id="student-form" onsubmit="return false;">
+      <div class="field">
+        <label for="s-attendance">Посещаемость <span class="hint">Сколько занятий из семестра ты посетил</span></label>
+        <div class="field-inline">
+          <input type="number" id="s-attendance" min="0" placeholder="24">
+          <span class="unit">занятий</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="s-g1">Балл за 1-ю контрольную (G1) <span class="hint">Оценка по шкале вашего курса</span></label>
+        <input type="number" id="s-g1" min="0" max="20" placeholder="Например, 15">
+      </div>
+      <div class="field">
+        <label for="s-g2">Балл за 2-ю контрольную (G2) <span class="hint">Оценка по шкале вашего курса</span></label>
+        <input type="number" id="s-g2" min="0" max="20" placeholder="Например, 14">
+      </div>
+      <div class="field">
+        <label for="s-self">Самостоятельные занятия <span class="hint">Сколько часов в неделю ты занимаешься сам</span></label>
+        <div class="field-inline">
+          <input type="number" id="s-self" min="0" placeholder="5">
+          <span class="unit">ч / нед</span>
+        </div>
+      </div>
+      <div class="field">
+        <label for="s-fails">Незачёты <span class="hint">Сколько всего незачётов накопилось за семестр</span></label>
+        <input type="number" id="s-fails" min="0" placeholder="0">
+      </div>
+      <button type="button" class="btn-calc" onclick="calculateStudentRisk()">📊 Проверить свой шанс</button>
+    </form>
+
+    <div id="student-result">
+      <div class="result-student-card">
+        <div class="result-student-header">
+          <h3 id="s-result-name">Твой прогресс</h3>
+          <span class="status" id="s-result-status">Высокий шанс</span>
+        </div>
+        <div class="result-big-number">
+          <span class="num" id="s-result-percent">87</span>
+          <div class="sub" id="s-result-label">Вероятность сдачи</div>
+        </div>
+        <div class="result-student-stats">
+          <div class="stat-item"><span class="val" id="s-stat-avg">3.1</span><span class="lbl">Средний балл / 5</span></div>
+          <div class="stat-item"><span class="val" id="s-stat-att">42%</span><span class="lbl">Посещаемость</span></div>
+          <div class="stat-item"><span class="val" id="s-stat-self">2 ч/нед</span><span class="lbl">Самоподготовка</span></div>
+        </div>
+        <div class="result-tips">
+          <h4>💡 Что улучшить?</h4>
+          <ul id="s-tips-list">
+            <li>Посещай занятия регулярно</li>
+            <li>Больше практикуйся по темам</li>
+            <li>Выполняй домашние задания вовремя</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+  // ===== NAVIGATION =====
+  function goToHero() {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-hero').classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function goToTeacher() {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-teacher').classList.add('active');
+    const target = document.getElementById('page-teacher');
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function goToStudent() {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById('page-student').classList.add('active');
+    const target = document.getElementById('page-student');
+    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ===== КОНСТАНТЫ =====
+  const COLUMNS = [
+    'school', 'sex', 'age', 'address', 'famsize', 'Pstatus',
+    'Medu', 'Fedu', 'Mjob', 'Fjob', 'reason', 'guardian',
+    'traveltime', 'studytime', 'failures', 'schoolsup', 'famsup',
+    'paid', 'activities', 'nursery', 'higher', 'internet',
+    'romantic', 'famrel', 'freetime', 'goout', 'Dalc', 'Walc',
+    'health', 'absences', 'G1', 'G2', 'G3'
+  ];
+
+  const TEXT_COLUMNS = [
+    'school', 'sex', 'address', 'famsize', 'Pstatus', 
+    'Mjob', 'Fjob', 'reason', 'guardian', 'schoolsup', 
+    'famsup', 'paid', 'activities', 'nursery', 'higher', 
+    'internet', 'romantic'
+  ];
+
+  let rowData = [];
+  let lastResults = [];
+  let currentModalFilter = 'all';
+
+  // ===== ИНИЦИАЛИЗАЦИЯ =====
+  function initTable(rows = 20) {
+    rowData = [];
+    for (let i = 0; i < rows; i++) {
+      const row = {};
+      COLUMNS.forEach(col => row[col] = '');
+      rowData.push(row);
+    }
+    renderTable();
+    updateStatus('Таблица создана на ' + rows + ' строк');
+  }
+
+  // ===== ПРОВЕРКА, ЕСТЬ ЛИ В СТРОКЕ ХОТЯ БЫ ОДИН СИМВОЛ =====
+  function isRowNonEmpty(row) {
+    return COLUMNS.some(col => row[col] && row[col].trim() !== '');
+  }
+
+  // ===== ОТРИСОВКА ТАБЛИЦЫ =====
+  function renderTable() {
+    const tbody = document.getElementById('tableBody');
+    tbody.innerHTML = '';
+    
+    rowData.forEach((row, idx) => {
+      const tr = document.createElement('tr');
+      tr.dataset.index = idx;
+      
+      const tdNum = document.createElement('td');
+      tdNum.className = 'row-num';
+      tdNum.textContent = idx + 1;
+      tr.appendChild(tdNum);
+
+      COLUMNS.forEach(col => {
+        const td = document.createElement('td');
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.className = 'table-input';
+        if (TEXT_COLUMNS.includes(col)) {
+          input.className += ' text';
+        }
+        input.value = row[col] || '';
+        input.dataset.row = idx;
+        input.dataset.col = col;
+        input.addEventListener('input', function() {
+          const r = parseInt(this.dataset.row);
+          const c = this.dataset.col;
+          rowData[r][c] = this.value;
+          this.classList.remove('paste-highlight');
+        });
+        td.appendChild(input);
+        tr.appendChild(td);
+      });
+
+      tbody.appendChild(tr);
+    });
+
+    document.getElementById('rowCount').textContent = rowData.length;
+  }
+
+  // ===== ДОБАВЛЕНИЕ СТРОК =====
+  function addRows() {
+    const countInput = document.getElementById('addCount');
+    let count = parseInt(countInput.value) || 5;
+    if (count < 1) count = 1;
+    if (count > 100) count = 100;
+    
+    for (let i = 0; i < count; i++) {
+      const row = {};
+      COLUMNS.forEach(col => row[col] = '');
+      rowData.push(row);
+    }
+    renderTable();
+    updateStatus('Добавлено ' + count + ' строк. Всего: ' + rowData.length);
+    showToast('✅ Добавлено ' + count + ' строк');
+  }
+
+  function addRow() {
+    const row = {};
+    COLUMNS.forEach(col => row[col] = '');
+    rowData.push(row);
+    renderTable();
+    updateStatus('Добавлена 1 строка. Всего: ' + rowData.length);
+  }
+
+  // ===== УДАЛЕНИЕ СТРОК =====
+  function deleteRows() {
+    const countInput = document.getElementById('deleteCount');
+    let count = parseInt(countInput.value) || 1;
+    if (count < 1) count = 1;
+    if (count > rowData.length) count = rowData.length;
+    
+    if (count === 0) {
+      showToast('⚠️ В таблице нет строк для удаления');
+      return;
+    }
+    
+    if (!confirm('Удалить последние ' + count + ' строк?')) return;
+    
+    for (let i = 0; i < count; i++) {
+      rowData.pop();
+    }
+    renderTable();
+    updateStatus('Удалено ' + count + ' строк. Всего: ' + rowData.length);
+    showToast('🗑️ Удалено ' + count + ' строк');
+  }
+
+  function deleteRow() {
+    if (rowData.length <= 1) {
+      showToast('⚠️ Нельзя удалить последнюю строку');
+      return;
+    }
+    if (!confirm('Удалить последнюю строку?')) return;
+    rowData.pop();
+    renderTable();
+    updateStatus('Удалена 1 строка. Всего: ' + rowData.length);
+    showToast('🗑️ Строка удалена');
+  }
+
+  // ===== ОЧИСТКА =====
+  function clearTable() {
+    if (rowData.length === 0) {
+      showToast('⚠️ Таблица уже пуста');
+      return;
+    }
+    if (!confirm('Удалить все данные из таблицы?')) return;
+    
+    rowData.forEach(row => {
+      COLUMNS.forEach(col => row[col] = '');
+    });
+    renderTable();
+    updateStatus('Все данные очищены');
+    showToast('🗑️ Все данные очищены');
+  }
+
+  // ===== ОБНОВЛЕНИЕ СТАТУСА =====
+  function updateStatus(message) {
+    document.getElementById('rowCount').textContent = rowData.length;
+    if (message) {
+      document.getElementById('lastAction').textContent = '✅ ' + message;
+    }
+  }
+
+  // ===== КОПИРОВАНИЕ ТАБЛИЦЫ =====
+  function copyTable() {
+    if (rowData.length === 0) {
+      showToast('⚠️ Таблица пуста! Нечего копировать.');
+      return;
+    }
+
+    let tsv = '';
+    tsv += '#' + '\t' + COLUMNS.join('\t') + '\n';
+    
+    rowData.forEach((row, idx) => {
+      const values = COLUMNS.map(col => row[col] || '');
+      tsv += (idx + 1) + '\t' + values.join('\t') + '\n';
+    });
+
+    navigator.clipboard.writeText(tsv).then(() => {
+      showToast('✅ Таблица скопирована! Вставьте в Excel (Ctrl+V)');
+      updateStatus('Таблица скопирована (' + rowData.length + ' строк)');
+    }).catch(() => {
+      const textarea = document.createElement('textarea');
+      textarea.value = tsv;
+      document.body.appendChild(textarea);
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        showToast('✅ Таблица скопирована! Вставьте в Excel (Ctrl+V)');
+        updateStatus('Таблица скопирована (' + rowData.length + ' строк)');
+      } catch (e) {
+        showToast('❌ Ошибка копирования. Выделите таблицу вручную.');
+      }
+      document.body.removeChild(textarea);
+    });
+  }
+
+  // ===== ВСТАВКА ИЗ EXCEL (Ctrl+V) =====
+  document.addEventListener('paste', function(e) {
+    const teacherPage = document.getElementById('page-teacher');
+    if (!teacherPage.classList.contains('active')) return;
+    
+    const target = e.target;
+    if (!target.classList.contains('table-input')) return;
+    
+    const clipboardData = e.clipboardData || window.clipboardData;
+    if (!clipboardData) return;
+    
+    const text = clipboardData.getData('text/plain');
+    if (!text) return;
+    
+    e.preventDefault();
+    
+    const rowIdx = parseInt(target.dataset.row);
+    const colName = target.dataset.col;
+    const colIdx = COLUMNS.indexOf(colName);
+    
+    const lines = text.split('\n').filter(line => line.trim() !== '');
+    if (lines.length === 0) {
+      showToast('⚠️ Нет данных для вставки');
+      return;
+    }
+    
+    let delimiter = '\t';
+    if (lines[0].includes(';') && !lines[0].includes('\t')) {
+      delimiter = ';';
+    }
+    
+    const parsedData = lines.map(line => line.split(delimiter).map(cell => cell.trim()));
+    
+    let startRow = 0;
+    const firstRow = parsedData[0];
+    const headerKeywords = ['#', 'school', 'sex', 'age', 'address', 'famsize', 'Pstatus'];
+    if (firstRow.some(cell => headerKeywords.some(keyword => cell.toLowerCase().includes(keyword)))) {
+      startRow = 1;
+    }
+    
+    const dataRows = parsedData.slice(startRow);
+    if (dataRows.length === 0) {
+      showToast('⚠️ Нет данных для вставки');
+      return;
+    }
+    
+    const rowsToInsert = dataRows.length;
+    const colsToInsert = dataRows[0].length;
+    
+    const neededRows = rowIdx + rowsToInsert;
+    let addedRows = 0;
+    while (rowData.length < neededRows) {
+      const row = {};
+      COLUMNS.forEach(col => row[col] = '');
+      rowData.push(row);
+      addedRows++;
+    }
+    
+    let filled = 0;
+    
+    for (let i = 0; i < rowsToInsert; i++) {
+      const sourceRow = dataRows[i];
+      const targetRow = rowData[rowIdx + i];
+      for (let j = 0; j < colsToInsert; j++) {
+        const colIndex = colIdx + j;
+        if (colIndex < COLUMNS.length && j < sourceRow.length) {
+          targetRow[COLUMNS[colIndex]] = sourceRow[j] || '';
+          filled++;
+        }
+      }
+    }
+    
+    renderTable();
+    
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('.table-input');
+      inputs.forEach(inp => {
+        const r = parseInt(inp.dataset.row);
+        const c = inp.dataset.col;
+        const colIndex = COLUMNS.indexOf(c);
+        if (r >= rowIdx && r < rowIdx + rowsToInsert && 
+            colIndex >= colIdx && colIndex < colIdx + colsToInsert) {
+          inp.classList.add('paste-highlight');
+          setTimeout(() => {
+            inp.classList.remove('paste-highlight');
+          }, 2000);
+        }
+      });
+    }, 50);
+    
+    let message = `Вставлено ${rowsToInsert} строк`;
+    if (colsToInsert > 1) message += ` (${colsToInsert} колонок)`;
+    if (addedRows > 0) message += `, добавлено ${addedRows} новых строк`;
+    
+    updateStatus(message);
+    showToast('✅ ' + message);
+  });
+
+  // ===== TOAST =====
+  function showToast(message) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    clearTimeout(toast._timeout);
+    toast._timeout = setTimeout(() => {
+      toast.classList.remove('show');
+    }, 4000);
+  }
+
+  // ===== CALCULATE RISK =====
+  let calculatedStudents = [];
+
+  function calculateTeacherRisk() {
+    const nonEmptyRows = rowData.filter(row => isRowNonEmpty(row));
+    
+    if (nonEmptyRows.length === 0) {
+      showToast('⚠️ Нет данных для расчёта. Заполните хотя бы одну строку.');
+      return;
+    }
+
+    const students = nonEmptyRows.map((row, idx) => {
+      const failures = parseFloat(row.failures) || 0;
+      const absences = parseFloat(row.absences) || 0;
+      const g1 = parseFloat(row.G1) || 0;
+      const g2 = parseFloat(row.G2) || 0;
+      const studytime = parseFloat(row.studytime) || 0;
+      
+      let risk = 0;
+      risk += Math.min(failures * 20, 30);
+      risk += Math.min(absences / 100 * 30, 30);
+      const avgG = (g1 + g2) / 2;
+      risk += Math.max(0, (20 - avgG) / 20 * 25);
+      risk += Math.max(0, (5 - studytime) / 5 * 15);
+      risk = Math.min(Math.round(risk), 100);
+      
+      const chance = 100 - risk;
+      
+      return { 
+        id: idx + 1,
+        school: row.school || 'GP',
+        age: row.age || '?',
+        chance: chance,
+        risk: risk
+      };
+    });
+
+    calculatedStudents = students;
+    lastResults = students;
+
+    const results = students.sort((a, b) => a.chance - b.chance);
+    const high = results.filter(r => r.chance >= 70).length;
+    const medium = results.filter(r => r.chance >= 40 && r.chance < 70).length;
+    const low = results.filter(r => r.chance < 40).length;
+
+    const total = results.length;
+
+    document.getElementById('stat-total').textContent = total;
+    document.getElementById('stat-high').textContent = high;
+    document.getElementById('stat-medium').textContent = medium;
+    document.getElementById('stat-low').textContent = low;
+
+    document.getElementById('stat-high-bar').style.width = total > 0 ? (high / total * 100) + '%' : '0%';
+    document.getElementById('stat-medium-bar').style.width = total > 0 ? (medium / total * 100) + '%' : '0%';
+    document.getElementById('stat-low-bar').style.width = total > 0 ? (low / total * 100) + '%' : '0%';
+
+    const resultDiv = document.getElementById('teacher-result');
+    resultDiv.classList.add('active');
+
+    const listDiv = document.getElementById('teacher-risk-list');
+    listDiv.innerHTML = '';
+    const topStudents = results.slice(0, 4);
+    topStudents.forEach(s => {
+      const div = document.createElement('div');
+      div.className = 'risk-student';
+      const level = s.chance >= 70 ? 'high' : (s.chance >= 40 ? 'medium' : 'low');
+      div.innerHTML = `
+        <span class="name">Студент #${s.id}</span>
+        <span class="class">${s.school} ${s.age} лет</span>
+        <div class="risk-bar"><div class="fill ${level}" style="width:${s.chance}%"></div></div>
+        <span class="percent ${level}">${s.chance}%</span>
+      `;
+      listDiv.appendChild(div);
+    });
+
+    const badge = document.getElementById('result-badge');
+    if (low > 0) {
+      badge.textContent = `⚠️ ${low} студентов с низким шансом`;
+      badge.className = 'badge low';
+    } else if (medium > 0) {
+      badge.textContent = `📊 ${medium} студентов со средним шансом`;
+      badge.className = 'badge medium';
+    } else {
+      badge.textContent = '✅ У всех студентов высокий шанс';
+      badge.className = 'badge high';
+    }
+    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    showToast('📊 Расчёт выполнен!');
+  }
+
+  // ===== ALL STUDENTS MODAL =====
+  function openAllStudentsModal(filter = 'all') {
+    if (lastResults.length === 0) {
+      showToast('⚠️ Сначала выполните расчёт ("Проверить шансы")');
+      return;
+    }
+    currentModalFilter = filter;
+    document.getElementById('allStudentsModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    
+    const titleMap = {
+      'all': '📋 Все студенты',
+      'high': '📋 Студенты с высоким шансом (≥70%)',
+      'medium': '📋 Студенты со средним шансом (40-69%)',
+      'low': '📋 Студенты с низким шансом (&lt;40%)'
+    };
+    document.getElementById('modalTitle').textContent = titleMap[filter] || '📋 Все студенты';
+    
+    const badgeMap = {
+      'all': '',
+      'high': '<span class="modal-badge high">Высокий шанс</span>',
+      'medium': '<span class="modal-badge medium">Средний шанс</span>',
+      'low': '<span class="modal-badge low">Низкий шанс</span>'
+    };
+    document.getElementById('modalFilterBadge').innerHTML = badgeMap[filter] || '';
+    
+    renderAllStudents();
+  }
+
+  function closeAllStudentsModal() {
+    document.getElementById('allStudentsModal').classList.remove('active');
+    document.body.style.overflow = 'auto';
+  }
+
+  function renderAllStudents() {
+    const sortValue = document.getElementById('sortFilter').value;
+    const filter = currentModalFilter;
+    
+    let filtered = [...lastResults];
+    
+    if (filter === 'high') {
+      filtered = filtered.filter(s => s.chance >= 70);
+    } else if (filter === 'medium') {
+      filtered = filtered.filter(s => s.chance >= 40 && s.chance < 70);
+    } else if (filter === 'low') {
+      filtered = filtered.filter(s => s.chance < 40);
+    }
+    
+    if (sortValue === 'asc') {
+      filtered.sort((a, b) => a.chance - b.chance);
+    } else {
+      filtered.sort((a, b) => b.chance - a.chance);
+    }
+
+    const container = document.getElementById('modalBody');
+    
+    if (filtered.length === 0) {
+      container.innerHTML = '<div class="modal-empty">Нет студентов в этой категории</div>';
+      return;
+    }
+
+    container.innerHTML = '';
+    filtered.forEach(s => {
+      const div = document.createElement('div');
+      div.className = 'modal-student';
+      const level = s.chance >= 70 ? 'high' : (s.chance >= 40 ? 'medium' : 'low');
+      div.innerHTML = `
+        <span class="name">Студент #${s.id}</span>
+        <span class="class">${s.school} ${s.age} лет</span>
+        <div class="risk-bar"><div class="fill ${level}" style="width:${s.chance}%"></div></div>
+        <span class="percent ${level}">${s.chance}%</span>
+      `;
+      container.appendChild(div);
+    });
+  }
+
+  document.getElementById('allStudentsModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeAllStudentsModal();
+    }
+  });
+
+  // ===== STUDENT CALC =====
+  function calculateStudentRisk() {
+    const attendance = parseFloat(document.getElementById('s-attendance').value) || 0;
+    const g1 = parseFloat(document.getElementById('s-g1').value) || 0;
+    const g2 = parseFloat(document.getElementById('s-g2').value) || 0;
+    const self = parseFloat(document.getElementById('s-self').value) || 0;
+    const fails = parseFloat(document.getElementById('s-fails').value) || 0;
+
+    let risk = 0;
+    risk += Math.min(fails * 20, 30);
+    risk += Math.max(0, (25 - attendance) / 25 * 25);
+    const avgG = (g1 + g2) / 2;
+    risk += Math.max(0, (20 - avgG) / 20 * 25);
+    risk += Math.max(0, (6 - self) / 6 * 20);
+    risk = Math.min(Math.round(risk), 100);
+    
+    const chance = 100 - risk;
+
+    const resultDiv = document.getElementById('student-result');
+    resultDiv.classList.add('active');
+
+    document.getElementById('s-result-percent').textContent = chance;
+
+    const statusEl = document.getElementById('s-result-status');
+    const labelEl = document.getElementById('s-result-label');
+    if (chance >= 70) {
+      statusEl.textContent = 'Высокий шанс ✅';
+      statusEl.className = 'status high';
+      labelEl.textContent = 'Вероятность сдачи';
+    } else if (chance >= 40) {
+      statusEl.textContent = 'Средний шанс';
+      statusEl.className = 'status medium';
+      labelEl.textContent = 'Вероятность сдачи';
+    } else {
+      statusEl.textContent = 'Низкий шанс ⚠️';
+      statusEl.className = 'status low';
+      labelEl.textContent = 'Вероятность сдачи';
+    }
+
+    const avg = ((g1 + g2) / 2 / 20 * 5).toFixed(1);
+    document.getElementById('s-stat-avg').textContent = avg;
+    document.getElementById('s-stat-att').textContent = Math.min(Math.round(attendance / 25 * 100), 100) + '%';
+    document.getElementById('s-stat-self').textContent = self + ' ч/нед';
+
+    const tipsList = document.getElementById('s-tips-list');
+    tipsList.innerHTML = '';
+    const tips = [];
+    if (attendance < 20) tips.push('Посещай занятия регулярно');
+    if ((g1 + g2) / 2 < 12) tips.push('Больше практикуйся по темам');
+    if (self < 3) tips.push('Увеличь время на самоподготовку');
+    if (fails > 0) tips.push('Закрой незачёты как можно скорее');
+    if (tips.length === 0) tips.push('Отличная работа! Продолжай в том же духе 🎉');
+    tips.forEach(t => {
+      const li = document.createElement('li');
+      li.textContent = t;
+      tipsList.appendChild(li);
+    });
+
+    resultDiv.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // ===== ЗАПУСК =====
+  document.addEventListener('DOMContentLoaded', function() {
+    initTable(20);
+  });
+
+  window.addEventListener('hashchange', function() {
+    const hash = window.location.hash;
+    if (hash === '#page-teacher') goToTeacher();
+    else if (hash === '#page-student') goToStudent();
+    else if (hash === '#page-hero' || hash === '') goToHero();
+  });
+
+  if (window.location.hash === '#page-teacher') goToTeacher();
+  else if (window.location.hash === '#page-student') goToStudent();
+
+  document.addEventListener('keydown', function(e) {
+    if ((e.ctrlKey && e.shiftKey && (e.key === '+' || e.key === '=')) || 
+        (e.ctrlKey && e.key === '=')) {
+      e.preventDefault();
+      addRow();
+    }
+    if ((e.ctrlKey && e.shiftKey && e.key === '-') || 
+        (e.ctrlKey && e.key === '-')) {
+      e.preventDefault();
+      deleteRow();
+    }
+    if (e.ctrlKey && e.key === 'c' && !e.target.closest('input') && 
+        document.getElementById('page-teacher').classList.contains('active')) {
+      e.preventDefault();
+      copyTable();
+    }
+    if (e.key === 'Escape') {
+      closeAllStudentsModal();
+    }
+  });
+</script>
+
+</body>
+</html>
