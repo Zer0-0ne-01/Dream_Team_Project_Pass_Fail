@@ -20,7 +20,7 @@ def pred(train_addres = "./student-por.csv", data_addres = "./data.csv"):
     rf.fit(df,target)
 
     p_df = pd.read_excel(data_addres)
-    p_df = pd.get_dummies(df,drop_first=True)
+    p_df = pd.get_dummies(p_df,drop_first=True)
 
     threshold = 0.61
     proba =rf.predict(p_df)
