@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Аналитик — материал для презентации</title>
+<style>
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto;background:#0f172a;color:#e2e8f0;}
+  .wrap{max-width:1000px;margin:0 auto;padding:32px 26px;}
+  h1{font-size:28px;margin:0 0 4px;color:#fff;}
+  .sub{color:#94a3b8;font-size:14px;margin-bottom:16px;}
+  section{background:#1e293b;border-radius:12px;padding:18px 20px;margin:14px 0;border-left:5px solid #6366f1;}
+  h2{font-size:18px;margin:0 0 10px;color:#c7d2fe;}
+  table{border-collapse:collapse;width:100%;font-size:14px;}
+  th,td{border:1px solid #334155;padding:8px 10px;text-align:left;}
+  th{background:#334155;color:#e0e7ff;}
+  .lvl{font-weight:700;color:#facc15;}
+  .good{color:#4ade80;font-weight:700;}
+  .note{color:#94a3b8;font-size:13px;}
+  code{background:#0b1220;padding:1px 5px;border-radius:4px;font-size:12px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Кто не получит зачёт? — раннее предупреждение</h1>
+  <div class="sub">Аналитика · Далер · воспроизводимо: <code>python kase6_analiz.py</code></div>
+
+  <section>
+    <h2>Метрики: два уровня задачи</h2>
+    <table>
+      <tr><th>Уровень</th><th>ROC-AUC (CV)</th><th>PR-AUC</th></tr>
+      <tr><td class="lvl">Базовый L1 (с G1/G2)</td><td class="good">0.971 ± 0.004</td><td>0.648</td></tr>
+      <tr><td class="lvl">Сложный L2 (без G1/G2)</td><td class="good">0.829 ± 0.029</td><td>0.333</td></tr>
+    </table>
+    <p class="note">L1 (все оценки, включая G1/G2) на CatBoost — лучшая модель, ROC-AUC 0.971. L2 (только ранние признаки, без G1/G2) — ROC-AUC 0.829, и на этом уровне топ-факторы уже school, failures, higher.</p>
+  </section>
+
+  <section>
+    <h2>Три фактора — в какую сторону и почему</h2>
+    <table>
+      <tr><th>Фактор</th><th>Как влияет</th></tr>
+      <tr><td>Прошлые незачёты (<code>failures</code>): у не сдавших в среднем 0.75, у сдавших 0.13</td><td>чем больше у ученика завалов по другим предметам — тем выше шанс, что не сдаст и этот. Это единственный признак, на который куратор реально может повлиять: обратить внимание, помочь.</td></tr>
+      <tr><td>Школа (<code>school</code>): MS не сдают 30%, GP — 8%</td><td>ученики из школы MS не сдают в четыре раза чаще. Это не значит, что школа виновата — скорее всего, в MS другие условия, уровень подготовки, отношение к учёбе.</td></tr>
+      <tr><td>Планы на вуз (<code>higher</code>): не планируют — 48%, планируют — 12%</td><td>ученики, которые не собираются поступать в вуз, заваливают в четыре раза чаще. Это видно сразу, до первых оценок — по опроснику.</td></tr>
+    </table>
+    <p class="note">Все три признака устойчивы и каждый объясним: прошлые завалы — это поведение, на которое куратор может влиять; школа — маркер среды, из которой пришёл ученик; отсутствие планов на вуз — сразу видно по опроснику, ещё до первых оценок.</p>
+  </section>
+
+  <section>
+    <h2>Другие метрики (порог Юдена 0.43)</h2>
+    <table>
+      <tr><th>Полнота, recall</th><th>Точность, precision</th><th>Точность (accuracy)</th></tr>
+      <tr><td>0.87<br><span class="muted">из 100 не сдавших — находим 87</span></td>
+          <td>0.68<br><span class="muted">из 100, кого отметили — реально не сдаст 68</span></td>
+          <td>0.92</td></tr>
+    </table>
+    <p class="note">Порог 0.43 подобран по индексу Юдена: он максимизирует разницу между чувствительностью и специфичностью. На таком пороге модель ловит 87% рисковых, и 68% из тех, кого отправили куратору, действительно не сдают.</p>
+  </section>
+
+</div>
+</body>
+</html>
